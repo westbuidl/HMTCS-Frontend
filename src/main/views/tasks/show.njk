@@ -1,0 +1,211 @@
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+{% extends "template.njk" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: "Back to all tasks",
+    href: "/tasks"
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      
+      <!-- Success/Error Messages -->
+      {% if successMessage %}
+        {{ govukNotificationBanner({
+          type: "success",
+          html: '<p class="govuk-notification-banner__heading">Success</p><p class="govuk-body">' + successMessage + '</p>'
+        }) }}
+      {% endif %}
+
+      {% if errorMessage %}
+        {{ govukNotificationBanner({
+          html: '<p class="govuk-notification-banner__heading">There is a problem</p><p class="govuk-body">' + errorMessage + '</p>'
+        }) }}
+      {% endif %}
+
+      <!-- Task Header -->
+      <div class="govuk-!-margin-bottom-6">
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-2">{{ task.title }}</h1>
+        
+        <!-- Status Tag -->
+        {% if task.status == 'PENDING' %}
+          {{ govukTag({ text: 'Pending', classes: 'govuk-tag--yellow' }) }}
+        {% elif task.status == 'IN_PROGRESS' %}
+          {{ govukTag({ text: 'In Progress', classes: 'govuk-tag--blue' }) }}
+        {% elif task.status == 'COMPLETED' %}
+          {{ govukTag({ text: 'Completed', classes: 'govuk-tag--green' }) }}
+        {% elif task.status == 'CANCELLED' %}
+          {{ govukTag({ text: 'Cancelled', classes: 'govuk-tag--red' }) }}
+        {% endif %}
+
+        <!-- Overdue Warning -->
+        {% if task.dueDate %}
+          {% set isOverdue = (task.dueDate | date('X')) < (moment() | date('X')) and task.status != 'COMPLETED' %}
+          {% if isOverdue %}
+            {{ govukWarningText({
+              text: "This task is overdue",
+              iconFallbackText: "Warning"
+            }) }}
+          {% endif %}
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      
+      <!-- Task Details -->
+      {% set summaryRows = [] %}
+      
+      <!-- ID -->
+      {% set summaryRows = (summaryRows.push({
+        key: { text: "Task ID" },
+        value: { text: task.id }
+      }), summaryRows) %}
+
+      <!-- Description -->
+      {% if task.description %}
+        {% set summaryRows = (summaryRows.push({
+          key: { text: "Description" },
+          value: { html: task.description | nl2br }
+        }), summaryRows) %}
+      {% endif %}
+
+      <!-- Status -->
+      {% set statusHtml %}
+        {% if task.status == 'PENDING' %}
+          {{ govukTag({ text: 'Pending', classes: 'govuk-tag--yellow' }) }}
+        {% elif task.status == 'IN_PROGRESS' %}
+          {{ govukTag({ text: 'In Progress', classes: 'govuk-tag--blue' }) }}
+        {% elif task.status == 'COMPLETED' %}
+          {{ govukTag({ text: 'Completed', classes: 'govuk-tag--green' }) }}
+        {% elif task.status == 'CANCELLED' %}
+          {{ govukTag({ text: 'Cancelled', classes: 'govuk-tag--red' }) }}
+        {% endif %}
+      {% endset %}
+      {% set summaryRows = (summaryRows.push({
+        key: { text: "Status" },
+        value: { html: statusHtml }
+      }), summaryRows) %}
+
+      <!-- Due Date -->
+      {% if task.dueDate %}
+        {% set dueDateText = task.dueDate | date('DD MMMM YYYY [at] HH:mm') %}
+        {% set isOverdue = (task.dueDate | date('X')) < (moment() | date('X')) and task.status != 'COMPLETED' %}
+        {% if isOverdue %}
+          {% set dueDateText = '<span style="color: #d4351c; font-weight: bold;">' + dueDateText + ' (OVERDUE)</span>' %}
+        {% endif %}
+        {% set summaryRows = (summaryRows.push({
+          key: { text: "Due date" },
+          value: { html: dueDateText }
+        }), summaryRows) %}
+      {% endif %}
+
+      <!-- Created Date -->
+      {% set summaryRows = (summaryRows.push({
+        key: { text: "Created" },
+        value: { text: task.createdDate | date('DD MMMM YYYY [at] HH:mm') }
+      }), summaryRows) %}
+
+      <!-- Updated Date -->
+      {% if task.updatedDate != task.createdDate %}
+        {% set summaryRows = (summaryRows.push({
+          key: { text: "Last updated" },
+          value: { text: task.updatedDate | date('DD MMMM YYYY [at] HH:mm') }
+        }), summaryRows) %}
+      {% endif %}
+
+      {{ govukSummaryList({
+        rows: summaryRows
+      }) }}
+
+    </div>
+
+    <div class="govuk-grid-column-one-third">
+      
+      <!-- Task Actions -->
+      <div class="govuk-related-items">
+        <h2 class="govuk-heading-s">Task Actions</h2>
+        
+        <!-- Status Update Forms -->
+        {% if task.status != 'PENDING' %}
+          <form action="/tasks/{{ task.id }}/status" method="post" style="margin-bottom: 10px;">
+            <input type="hidden" name="status" value="PENDING">
+            {{ govukButton({
+              text: "Mark as Pending",
+              classes: "govuk-button--secondary govuk-!-width-full"
+            }) }}
+          </form>
+        {% endif %}
+
+        {% if task.status != 'IN_PROGRESS' %}
+          <form action="/tasks/{{ task.id }}/status" method="post" style="margin-bottom: 10px;">
+            <input type="hidden" name="status" value="IN_PROGRESS">
+            {{ govukButton({
+              text: "Mark as In Progress",
+              classes: "govuk-!-width-full"
+            }) }}
+          </form>
+        {% endif %}
+
+        {% if task.status != 'COMPLETED' %}
+          <form action="/tasks/{{ task.id }}/status" method="post" style="margin-bottom: 10px;">
+            <input type="hidden" name="status" value="COMPLETED">
+            {{ govukButton({
+              text: "Mark as Completed",
+              classes: "govuk-button--success govuk-!-width-full"
+            }) }}
+          </form>
+        {% endif %}
+
+        {% if task.status != 'CANCELLED' and task.status != 'COMPLETED' %}
+          <form action="/tasks/{{ task.id }}/status" method="post" style="margin-bottom: 20px;">
+            <input type="hidden" name="status" value="CANCELLED">
+            {{ govukButton({
+              text: "Cancel Task",
+              classes: "govuk-button--warning govuk-!-width-full"
+            }) }}
+          </form>
+        {% endif %}
+
+        <!-- Delete Task -->
+        <details class="govuk-details" data-module="govuk-details">
+          <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">Delete this task</span>
+          </summary>
+          <div class="govuk-details__text">
+            <p class="govuk-body-s">This will permanently delete the task. This action cannot be undone.</p>
+            <form action="/tasks/{{ task.id }}/delete" method="post" onsubmit="return confirm('Are you sure you want to delete this task? This action cannot be undone.');">
+              {{ govukButton({
+                text: "Delete task",
+                classes: "govuk-button--warning"
+              }) }}
+            </form>
+          </div>
+        </details>
+
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .govuk-button--success {
+      background-color: #00703c;
+      box-shadow: 0 2px 0 #002d18;
+    }
+    .govuk-button--success:hover {
+      background-color: #005a30;
+    }
+  </style>
+{% endblock %}

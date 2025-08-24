@@ -31,20 +31,4 @@ module.exports = {
     publicPath: '',
     filename,
   },
-
-  devServer: {
-    port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:4000',
-        secure: false,
-        changeOrigin: true
-      },
-      '/get-example-case': {
-        target: 'http://localhost:4000',
-        secure: false,
-        changeOrigin: true
-      }
-    }
-  }
 };

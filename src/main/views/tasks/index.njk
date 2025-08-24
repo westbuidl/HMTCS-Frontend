@@ -1,0 +1,154 @@
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
+{% extends "template.njk" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      
+      <!-- Success/Error Messages -->
+      {% if successMessage %}
+        {{ govukNotificationBanner({
+          type: "success",
+          html: '<p class="govuk-notification-banner__heading">Success</p><p class="govuk-body">' + successMessage + '</p>'
+        }) }}
+      {% endif %}
+
+      {% if errorMessage %}
+        {{ govukNotificationBanner({
+          html: '<p class="govuk-notification-banner__heading">There is a problem</p><p class="govuk-body">' + errorMessage + '</p>'
+        }) }}
+      {% endif %}
+
+      <!-- Page Header -->
+      <div class="govuk-!-margin-bottom-6">
+        <h1 class="govuk-heading-xl govuk-!-margin-bottom-4">Task Management</h1>
+        <p class="govuk-body-l">Manage and track your caseworker tasks</p>
+        
+        <div class="govuk-button-group">
+          {{ govukButton({
+            text: "Create new task",
+            href: "/tasks/new",
+            isStartButton: true
+          }) }}
+          
+          {{ govukButton({
+            text: "Refresh tasks",
+            href: "/tasks",
+            classes: "govuk-button--secondary"
+          }) }}
+        </div>
+      </div>
+
+      <!-- Tasks Table -->
+      {% if tasks.length > 0 %}
+        {% set tableRows = [] %}
+        {% for task in tasks %}
+          {% set statusTag %}
+            {% if task.status == 'PENDING' %}
+              {{ govukTag({ text: 'Pending', classes: 'govuk-tag--yellow' }) }}
+            {% elif task.status == 'IN_PROGRESS' %}
+              {{ govukTag({ text: 'In Progress', classes: 'govuk-tag--blue' }) }}
+            {% elif task.status == 'COMPLETED' %}
+              {{ govukTag({ text: 'Completed', classes: 'govuk-tag--green' }) }}
+            {% elif task.status == 'CANCELLED' %}
+              {{ govukTag({ text: 'Cancelled', classes: 'govuk-tag--red' }) }}
+            {% endif %}
+          {% endset %}
+
+          {% set dueDateText %}
+            {% if task.dueDate %}
+              {% set dueDate = task.dueDate | date('DD/MM/YYYY HH:mm') %}
+              {% set isOverdue = (task.dueDate | date('X')) < (moment() | date('X')) and task.status != 'COMPLETED' %}
+              {% if isOverdue %}
+                <span class="govuk-!-font-weight-bold" style="color: #d4351c;">{{ dueDate }} (OVERDUE)</span>
+              {% else %}
+                {{ dueDate }}
+              {% endif %}
+            {% else %}
+              <span class="govuk-hint">No due date</span>
+            {% endif %}
+          {% endset %}
+
+          {% set actionsHtml %}
+            <a href="/tasks/{{ task.id }}" class="govuk-link">View</a>
+          {% endset %}
+
+          {% set tableRows = (tableRows.push([
+            {
+              html: '<a href="/tasks/' + task.id + '" class="govuk-link govuk-!-font-weight-bold">' + task.title + '</a>' +
+                    (task.description ? '<br><span class="govuk-hint govuk-!-font-size-14">' + (task.description | truncate(80)) + '</span>' : '')
+            },
+            {
+              html: statusTag
+            },
+            {
+              html: dueDateText
+            },
+            {
+              text: task.createdDate | date('DD/MM/YYYY HH:mm')
+            },
+            {
+              html: actionsHtml
+            }
+          ]), tableRows) %}
+        {% endfor %}
+
+        {{ govukTable({
+          caption: "All tasks (" + tasks.length + " items)",
+          captionClasses: "govuk-table__caption--m govuk-visually-hidden",
+          firstCellIsHeader: false,
+          head: [
+            { text: "Task" },
+            { text: "Status" },
+            { text: "Due Date" },
+            { text: "Created" },
+            { text: "Actions" }
+          ],
+          rows: tableRows
+        }) }}
+
+      {% else %}
+        <div class="govuk-panel govuk-panel--confirmation" style="background-color: #f3f2f1; border-color: #b1b4b6;">
+          <div class="govuk-panel__body">
+            <p class="govuk-body" style="color: #0b0c0c;">No tasks found. <a href="/tasks/new" class="govuk-link">Create your first task</a></p>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Task Statistics -->
+      {% if tasks.length > 0 %}
+        <div class="govuk-grid-row govuk-!-margin-top-6">
+          <div class="govuk-grid-column-one-quarter">
+            <div class="govuk-panel" style="background-color: #fff3cd; border-color: #ffc107;">
+              <div class="govuk-panel__title" style="color: #856404;">{{ tasks | selectattr('status', 'equalto', 'PENDING') | list | length }}</div>
+              <div class="govuk-panel__body" style="color: #856404;">Pending</div>
+            </div>
+          </div>
+          <div class="govuk-grid-column-one-quarter">
+            <div class="govuk-panel" style="background-color: #cce5ff; border-color: #007bff;">
+              <div class="govuk-panel__title" style="color: #004085;">{{ tasks | selectattr('status', 'equalto', 'IN_PROGRESS') | list | length }}</div>
+              <div class="govuk-panel__body" style="color: #004085;">In Progress</div>
+            </div>
+          </div>
+          <div class="govuk-grid-column-one-quarter">
+            <div class="govuk-panel" style="background-color: #d4edda; border-color: #28a745;">
+              <div class="govuk-panel__title" style="color: #155724;">{{ tasks | selectattr('status', 'equalto', 'COMPLETED') | list | length }}</div>
+              <div class="govuk-panel__body" style="color: #155724;">Completed</div>
+            </div>
+          </div>
+          <div class="govuk-grid-column-one-quarter">
+            <div class="govuk-panel" style="background-color: #f8d7da; border-color: #dc3545;">
+              <div class="govuk-panel__title" style="color: #721c24;">{{ tasks | selectattr('status', 'equalto', 'CANCELLED') | list | length }}</div>
+              <div class="govuk-panel__body" style="color: #721c24;">Cancelled</div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+{% endblock %}

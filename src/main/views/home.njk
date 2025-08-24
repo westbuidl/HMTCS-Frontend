@@ -1,121 +1,175 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
 
 {% extends "template.njk" %}
 
-<!-- You may want to make further use of these components: https://design-system.service.gov.uk/components/
-but ultimately it is up to you -->
-
 {% block content %}
-  <h1 class="govuk-heading-xl">Welcome to your dev test!</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">Welcome to HMCTS Task Management</h1>
+      <p class="govuk-body-l">Efficiently manage and track your caseworker tasks with our integrated task management system.</p>
+      
+      <div class="govuk-button-group govuk-!-margin-bottom-8">
+        {{ govukButton({
+          text: "View all tasks",
+          href: "/tasks",
+          isStartButton: true
+        }) }}
+        
+        {{ govukButton({
+          text: "Create new task",
+          href: "/tasks/new",
+          classes: "govuk-button--secondary"
+        }) }}
+      </div>
 
-  <!-- The freedom is yours. You can design the solution however you like, however there is a starting point provided
-  to ensure you have both services running. You may want to make use of the Gov UK Components:
-  https://design-system.service.gov.uk/components/ to add tabs and so forth :) -->
-
-  {% if example.id %}
-
-    {{ govukSummaryList({
-      rows: [
-        {
-          key: {
-            text: "ID"
-          },
-          value: {
-            text: example.id
-          },
-          actions: {
-            items: [
-              {
-                href: "#",
-                text: "Change",
-                visuallyHiddenText: "change case id ?!"
+      <!-- Example Case Information (if available) -->
+      {% if example.id %}
+        <h2 class="govuk-heading-l">Example Case Information</h2>
+        
+        {{ govukSummaryList({
+          rows: [
+            {
+              key: {
+                text: "ID"
+              },
+              value: {
+                text: example.id
+              },
+              actions: {
+                items: [
+                  {
+                    href: "#",
+                    text: "Change",
+                    visuallyHiddenText: "change case id"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          key: {
-            text: "Case Number"
-          },
-          value: {
-            text: example.caseNumber
-          },
-          actions: {
-            items: [
-              {
-                href: "#",
-                text: "Change",
-                visuallyHiddenText: "change case number"
+            },
+            {
+              key: {
+                text: "Case Number"
+              },
+              value: {
+                text: example.caseNumber
+              },
+              actions: {
+                items: [
+                  {
+                    href: "#",
+                    text: "Change",
+                    visuallyHiddenText: "change case number"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          key: {
-            text: "Title"
-          },
-          value: {
-            html: example.title
-          },
-          actions: {
-            items: [
-              {
-                href: "#",
-                text: "Change",
-                visuallyHiddenText: "change case title"
+            },
+            {
+              key: {
+                text: "Title"
+              },
+              value: {
+                html: example.title
+              },
+              actions: {
+                items: [
+                  {
+                    href: "#",
+                    text: "Change",
+                    visuallyHiddenText: "change case title"
+                  }
+                ]
               }
-            ]
-          }
-        },
-        {
-          key: {
-            text: "Description"
-          },
-          value: {
-            html: example.description
-          },
-          actions: {
-            items: [
-               {
-                 href: "#",
-                 text: "Delete",
-                 visuallyHiddenText: "Delete description"
-               },
-               {
-                 href: "#",
-                 text: "Change",
-                 visuallyHiddenText: "Change description"
-               }
-            ]
-          }
-        },
-        {
-          key: {
-            text: "Status"
-          },
-          value: {
-            html: example.status
-          },
-          actions: {
-            items: [
-            ]
-          }
-        },
-        {
-          key: {
-           text: "Created Date"
-          },
-          value: {
-           html: example.createdDate
-          },
-          actions: {
-           items: [
-           ]
-          }
-        }
-      ]
-    }) }}
+            },
+            {
+              key: {
+                text: "Description"
+              },
+              value: {
+                html: example.description
+              },
+              actions: {
+                items: [
+                   {
+                     href: "#",
+                     text: "Delete",
+                     visuallyHiddenText: "Delete description"
+                   },
+                   {
+                     href: "#",
+                     text: "Change",
+                     visuallyHiddenText: "Change description"
+                   }
+                ]
+              }
+            },
+            {
+              key: {
+                text: "Status"
+              },
+              value: {
+                html: example.status
+              },
+              actions: {
+                items: []
+              }
+            },
+            {
+              key: {
+               text: "Created Date"
+              },
+              value: {
+               html: example.createdDate
+              },
+              actions: {
+               items: []
+              }
+            }
+          ]
+        }) }}
+      {% endif %}
+    </div>
 
-  {% endif %}
+    <div class="govuk-grid-column-one-third">
+      <div class="govuk-related-items">
+        <h2 class="govuk-heading-s">Task Management Features</h2>
+        <nav role="navigation">
+          <ul class="govuk-list govuk-!-font-size-16">
+            <li class="govuk-!-margin-bottom-2">
+              <a class="govuk-link" href="/tasks">View and manage all tasks</a>
+            </li>
+            <li class="govuk-!-margin-bottom-2">
+              <a class="govuk-link" href="/tasks/new">Create new tasks with due dates</a>
+            </li>
+            <li class="govuk-!-margin-bottom-2">
+              Track task progress and status updates
+            </li>
+            <li class="govuk-!-margin-bottom-2">
+              Get notifications for overdue tasks
+            </li>
+            <li class="govuk-!-margin-bottom-2">
+              Professional task management for caseworkers
+            </li>
+          </ul>
+        </nav>
+      </div>
 
+      <div class="govuk-related-items govuk-!-margin-top-6">
+        <h2 class="govuk-heading-s">Quick Actions</h2>
+        <nav role="navigation">
+          <ul class="govuk-list govuk-!-font-size-16">
+            <li class="govuk-!-margin-bottom-2">
+              <a class="govuk-link" href="/tasks?filter=pending">View pending tasks</a>
+            </li>
+            <li class="govuk-!-margin-bottom-2">
+              <a class="govuk-link" href="/tasks?filter=in_progress">View tasks in progress</a>
+            </li>
+            <li class="govuk-!-margin-bottom-2">
+              <a class="govuk-link" href="/tasks?filter=overdue">View overdue tasks</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
 {% endblock %}

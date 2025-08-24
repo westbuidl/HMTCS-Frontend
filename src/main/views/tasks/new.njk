@@ -1,0 +1,206 @@
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% extends "template.njk" %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: "Back to tasks",
+    href: "/tasks"
+  }) }}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      
+      {% if errors and (errors.title or errors.description or errors.general) %}
+        {% set errorItems = [] %}
+        {% if errors.title %}
+          {% set errorItems = (errorItems.push({
+            text: errors.title,
+            href: "#title"
+          }), errorItems) %}
+        {% endif %}
+        {% if errors.description %}
+          {% set errorItems = (errorItems.push({
+            text: errors.description,
+            href: "#description"
+          }), errorItems) %}
+        {% endif %}
+        {% if errors.general %}
+          {% set errorItems = (errorItems.push({
+            text: errors.general,
+            href: "#title"
+          }), errorItems) %}
+        {% endif %}
+
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: errorItems
+        }) }}
+      {% endif %}
+
+      <h1 class="govuk-heading-xl">Create New Task</h1>
+      
+      <form action="/tasks" method="post" novalidate>
+        
+        {{ govukInput({
+          label: {
+            text: "Task title",
+            classes: "govuk-label--l",
+            isPageHeading: false
+          },
+          hint: {
+            text: "Enter a clear, descriptive title for the task"
+          },
+          id: "title",
+          name: "title",
+          value: task.title,
+          errorMessage: {
+            text: errors.title
+          } if errors.title,
+          attributes: {
+            maxlength: "255"
+          }
+        }) }}
+
+        {{ govukTextarea({
+          label: {
+            text: "Description",
+            classes: "govuk-label--m"
+          },
+          hint: {
+            text: "Provide additional details about the task (optional)"
+          },
+          id: "description",
+          name: "description",
+          value: task.description,
+          rows: 4,
+          errorMessage: {
+            text: errors.description
+          } if errors.description,
+          attributes: {
+            maxlength: "1000"
+          }
+        }) }}
+
+        {{ govukSelect({
+          id: "status",
+          name: "status",
+          label: {
+            text: "Status",
+            classes: "govuk-label--m"
+          },
+          hint: {
+            text: "Select the initial status for this task"
+          },
+          items: [
+            {
+              value: "PENDING",
+              text: "Pending",
+              selected: task.status == "PENDING" or not task.status
+            },
+            {
+              value: "IN_PROGRESS",
+              text: "In Progress",
+              selected: task.status == "IN_PROGRESS"
+            },
+            {
+              value: "COMPLETED",
+              text: "Completed",
+              selected: task.status == "COMPLETED"
+            }
+          ]
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "Due date",
+            classes: "govuk-label--m"
+          },
+          hint: {
+            text: "When should this task be completed? (optional)"
+          },
+          id: "dueDate",
+          name: "dueDate",
+          type: "datetime-local",
+          value: task.dueDate
+        }) }}
+
+        <div class="govuk-button-group">
+          {{ govukButton({
+            text: "Create task"
+          }) }}
+
+          {{ govukButton({
+            text: "Cancel",
+            href: "/tasks",
+            classes: "govuk-button--secondary"
+          }) }}
+        </div>
+
+      </form>
+    </div>
+    
+    <div class="govuk-grid-column-one-third">
+      <div class="govuk-related-items">
+        <h2 class="govuk-heading-s" id="subsection-title">
+          Task Guidelines
+        </h2>
+        <nav role="navigation" aria-labelledby="subsection-title">
+          <ul class="govuk-list govuk-!-font-size-16">
+            <li class="govuk-!-margin-bottom-2">
+              <span class="govuk-!-font-weight-bold">Title:</span> Keep it clear and specific (max 255 characters)
+            </li>
+            <li class="govuk-!-margin-bottom-2">
+              <span class="govuk-!-font-weight-bold">Description:</span> Include relevant case numbers, deadlines, or special instructions
+            </li>
+            <li class="govuk-!-margin-bottom-2">
+              <span class="govuk-!-font-weight-bold">Status:</span> Most new tasks should start as "Pending"
+            </li>
+            <li class="govuk-!-margin-bottom-2">
+              <span class="govuk-!-font-weight-bold">Due Date:</span> Set realistic deadlines to help prioritize work
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Add character counting for title and description
+    document.addEventListener('DOMContentLoaded', function() {
+      const titleInput = document.getElementById('title');
+      const descriptionTextarea = document.getElementById('description');
+      
+      function addCharacterCount(element, maxLength) {
+        const wrapper = element.parentNode;
+        const counter = document.createElement('div');
+        counter.className = 'govuk-hint govuk-character-count__message';
+        counter.setAttribute('aria-live', 'polite');
+        
+        function updateCount() {
+          const remaining = maxLength - element.value.length;
+          const message = remaining >= 0 
+            ? `You have ${remaining} characters remaining`
+            : `You have ${Math.abs(remaining)} characters too many`;
+          
+          counter.textContent = message;
+          counter.style.color = remaining < 0 ? '#d4351c' : '#505a5f';
+        }
+        
+        element.addEventListener('input', updateCount);
+        wrapper.appendChild(counter);
+        updateCount();
+      }
+      
+      if (titleInput) addCharacterCount(titleInput, 255);
+      if (descriptionTextarea) addCharacterCount(descriptionTextarea, 1000);
+    });
+  </script>
+{% endblock %}

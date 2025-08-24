@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const router = Router();
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8080';
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:4000';
 
 router.get('/', async (req, res) => {
   try {

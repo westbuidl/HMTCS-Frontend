@@ -48,14 +48,11 @@
         {% endif %}
 
         <!-- Overdue Warning -->
-        {% if task.dueDate %}
-          {% set isOverdue = (task.dueDate | date('X')) < (moment() | date('X')) and task.status != 'COMPLETED' %}
-          {% if isOverdue %}
-            {{ govukWarningText({
-              text: "This task is overdue",
-              iconFallbackText: "Warning"
-            }) }}
-          {% endif %}
+        {% if task.dueDate and (task.dueDate | isOverdue) and task.status != 'COMPLETED' %}
+          {{ govukWarningText({
+            text: "This task is overdue",
+            iconFallbackText: "Warning"
+          }) }}
         {% endif %}
       </div>
 
@@ -102,7 +99,7 @@
       <!-- Due Date -->
       {% if task.dueDate %}
         {% set dueDateText = task.dueDate | date('DD MMMM YYYY [at] HH:mm') %}
-        {% set isOverdue = (task.dueDate | date('X')) < (moment() | date('X')) and task.status != 'COMPLETED' %}
+        {% set isOverdue = (task.dueDate | isOverdue) and task.status != 'COMPLETED' %}
         {% if isOverdue %}
           {% set dueDateText = '<span style="color: #d4351c; font-weight: bold;">' + dueDateText + ' (OVERDUE)</span>' %}
         {% endif %}

@@ -22,7 +22,7 @@ interface CreateTaskRequest {
   dueDate?: string;
 }
 
-// Helper function to format date for backend
+
 function formatDateForBackend(dateString: string): string | undefined {
   if (!dateString) return undefined;
   
@@ -30,14 +30,14 @@ function formatDateForBackend(dateString: string): string | undefined {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return undefined;
     
-    // Format as ISO string for Spring Boot (LocalDateTime)
+    
     return date.toISOString();
   } catch (error) {
     return undefined;
   }
 }
 
-// GET /tasks - Display all tasks
+
 router.get('/tasks', async (req, res) => {
   try {
     console.log('Fetching tasks from:', API_BASE_URL);
@@ -77,7 +77,7 @@ router.get('/tasks', async (req, res) => {
   }
 });
 
-// GET /tasks/new - Display create task form
+
 router.get('/tasks/new', (req, res) => {
   res.render('tasks/new', {
     pageTitle: 'Create New Task',
@@ -86,13 +86,13 @@ router.get('/tasks/new', (req, res) => {
   });
 });
 
-// POST /tasks - Create a new task
+
 router.post('/tasks', async (req, res) => {
   const { title, description, status, dueDate } = req.body;
   
   console.log('Received form data:', { title, description, status, dueDate });
   
-  // Validation
+  
   const errors: any = {};
   if (!title || title.trim().length === 0) {
     errors.title = 'Task title is required';
@@ -154,7 +154,7 @@ router.post('/tasks', async (req, res) => {
   }
 });
 
-// GET /tasks/:id - Display single task
+
 router.get('/tasks/:id', async (req, res) => {
   const taskId = parseInt(req.params.id);
   
@@ -188,7 +188,7 @@ router.get('/tasks/:id', async (req, res) => {
   }
 });
 
-// POST /tasks/:id/status - Update task status
+
 router.post('/tasks/:id/status', async (req, res) => {
   const taskId = parseInt(req.params.id);
   const { status } = req.body;
@@ -216,7 +216,7 @@ router.post('/tasks/:id/status', async (req, res) => {
   }
 });
 
-// POST /tasks/:id/delete - Delete task
+
 router.post('/tasks/:id/delete', async (req, res) => {
   const taskId = parseInt(req.params.id);
   
@@ -225,7 +225,7 @@ router.post('/tasks/:id/delete', async (req, res) => {
   }
   
   try {
-    // Get task title before deletion for confirmation message
+    
     const taskResponse = await axios.get<Task>(`${API_BASE_URL}/${taskId}`);
     const taskTitle = taskResponse.data.title;
     

@@ -7,11 +7,11 @@ const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:4000';
 
 router.get('/', async (req, res) => {
   try {
-    // Get example case data (existing functionality)
+    
     const caseResponse = await axios.get(`${API_BASE_URL}/get-example-case`);
     const example = caseResponse.data;
     
-    // Optionally get task summary for dashboard
+    
     let taskSummary = null;
     try {
       const taskResponse = await axios.get(`${API_BASE_URL}/api/tasks`);

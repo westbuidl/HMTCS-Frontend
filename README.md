@@ -1,11 +1,19 @@
-# HMCTS Dev Test Frontend
-This will be the frontend for the brand new HMCTS case management system. As a potential candidate we are leaving
-this in your hands. Please refer to the brief for the complete list of tasks! Complete as much as you can and be
-as creative as you want.
+#Ensure Node.js and Yarn are installed.
 
-To begin with, you should be able to run this by running:
-1) `yarn install`
-2) `yarn webpack`
-3) `yarn start:dev` or navigate to package.json and run the script manually
+Clone the repository: git clone <frontend>.
+Navigate to the project directory: cd frontend.
+Install dependencies: yarn install.
+Start the development server: yarn start.
 
-You can change the structure however you like! 
+API Endpoints
+
+POST /api/tasks - Create a task
+GET /api/tasks/{id} - Retrieve a task
+GET /api/tasks - Retrieve all tasks
+PUT /api/tasks/{id}/status - Update task status
+DELETE /api/tasks/{id} - Delete a task
+
+Contributing
+See CONTRIBUTING.md.
+License
+This project is licensed under the MIT License.
